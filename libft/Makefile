@@ -6,7 +6,7 @@
 #    By: akratavi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/11/07 14:06:58 by akratavi          #+#    #+#              #
-#    Updated: 2017/11/14 16:01:16 by akratavi         ###   ########.fr        #
+#    Updated: 2017/11/15 11:17:13 by akratavi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,6 +15,8 @@ NAME		=	libft.a
 CC			=	gcc
 
 CFLAGS		=	-Wall -Wextra -Werror
+
+RM			=	rm -f
 
 INCLUDES	=	-I./
 
@@ -93,9 +95,9 @@ $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	rm -f $(OBJS)
+	$(RM) $(OBJS)
 
 fclean: clean
-	rm -f $(NAME)
+	$(RM) $(NAME)
 
 re: fclean all
