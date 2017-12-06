@@ -1,27 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_isdigit.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akratavi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/15 11:27:49 by akratavi          #+#    #+#             */
-/*   Updated: 2017/12/06 17:39:09 by akratavi         ###   ########.fr       */
+/*   Created: 2017/11/07 17:47:39 by akratavi          #+#    #+#             */
+/*   Updated: 2017/11/09 11:24:07 by akratavi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#include "libft.h"
 
-# define BUFF_SIZE 32
-
-typedef struct			s_line
+int		ft_isdigit(int c)
 {
-	char				*line;
-	struct s_line		*next;
-	int					fd;
-}						t_line;
-
-int						get_next_line(int const fd, char **line);
-
-#endif
+	return ((c >= '0' && c <= '9') ? 1 : 0);
+}

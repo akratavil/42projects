@@ -5,109 +5,145 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: akratavi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/15 11:27:57 by akratavi          #+#    #+#             */
-/*   Updated: 2017/11/16 18:26:07 by akratavi         ###   ########.fr       */
+/*   Created: 2017/12/05 16:14:24 by akratavi          #+#    #+#             */
+/*   Updated: 2017/12/06 20:08:24 by akratavi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include <stdlib.h>
-#include "libft.h"
+#include "libft/libft.h"
 #include "get_next_line.h"
 
-static size_t	check_buff(char *buff, size_t size)
+static int		copy_buff(char *buff, char **line)
 {
+	char			*tmp;
 	size_t			i;
 
 	i = 0;
-	while (i < size && buff[i] != '\n' && buff[i] != '\0')
+	while (i < BUFF_SIZE && buff[i] != '\n' && buff[i] != '\0')
 		i++;
-	if (i != size)
-		return (i);
-	else
-		return (0);
-}
-
-static int		stock_buff(char *buff, size_t size, char **line)
-{
-	char			*tmp_line;
-	char			*tmp_buff;
-
-	if (size)
-	{
-		if (!(tmp_buff = ft_strnew(size)))
-			return (-1);
-		tmp_buff = ft_strncpy(tmp_buff, buff, size);
-		if (!(tmp_line = ft_strjoin(*line, tmp_buff)))
-			return (-1);
-		free(tmp_buff);
-		tmp_buff = NULL;
-	}
-	else
-	{
-		if (!(tmp_line = ft_strjoin(*line, buff)))
-			return (-1);
-	}
+	if (!(tmp = ft_strnew(ft_strlen(*line) + i + 2)))
+		return (-1);
+	tmp = ft_strcpy(tmp, *line);
+	tmp = ft_strncat(tmp, buff, i);
 	free(*line);
 	*line = tmp;
+	if (i + 1 < BUFF_SIZE && buff[i] == '\n' && buff[i] != '\0')
+		return (1);
 	return (0);
 }
 
-static int		check_next_line(int const fd, char **line, t_list **next_line)
+static t_line	**save_next_line(int const fd, char *buff, t_line **next_line)
 {
-	char			*next_line;
-	t_list			*list_ptr;
-	t_list			*list_prev;
+	size_t			i;
+	t_line			*new;
+	t_line			*lst_ptr;
 
-	list_ptr = *next_line;
-	while (list_ptr && list_ptr->content->fd != fd)
+	i = 0;
+	if (!(new = (t_line*)malloc(sizeof(t_line))))
+		return (next_line);
+	while (buff[i] != '\n')
+		i++;
+	if (!(new->line = ft_strnew(BUFF_SIZE - i - 1)))
 	{
-		list_prev = list_ptr;
-		list_ptr = list_ptr->next;
+		ft_memdel((void**)&new);
+		return (next_line);
 	}
-	if (list_ptr)
+	new->line = ft_strncpy(new->line, &buff[i], BUFF_SIZE - i - 1);
+	new->fd = fd;
+	new->next = NULL;
+	if (!*next_line)
 	{
-		next_line = list_ptr->content->next_line;
-		if (stock_buff(next_line, ft_strlen(next_line) + 1, line))
-			return (-1);
-		list_prev->next = list_ptr->next;
-		free(list_ptr->content->next_line);
-		free(list_ptr->content);
-		free(list_ptr);
+		*next_line = new;
+		return (next_line);
 	}
-	return (0);
+	lst_ptr = *next_line;
+	while (lst_ptr->next != NULL)
+		lst_ptr = lst_ptr->next;
+	lst_ptr->next = new;
+	return (next_line);
 }
 
-static int		start_check(int const fd, char **line)
+static int		check_next_line(int const fd, char **line, t_line **next_line)
 {
-	if (fd < 0 || fd == 1 || fd == 2 || !line)
-		return (-1);
-	if (*line)
+	int				check;
+	t_line			*lst_ptr;
+	t_line			*lst_prv;
+
+	check = 0;
+	lst_ptr = *next_line;
+	lst_prv = NULL;
+	while (lst_ptr != NULL && lst_ptr->fd != fd)
 	{
-		free(*line);
-		*line = NULL;
+		ft_putendl("SEARCHING");
+		lst_prv = lst_ptr;
+		lst_ptr = lst_ptr->next;
 	}
-	return (0);
+	if (lst_ptr)
+	{
+		check = copy_buff(lst_ptr->line, line);
+		ft_putendl("NEXT LINE COPIED");
+		if (lst_prv)
+			lst_prv->next = lst_ptr->next;
+		if (check == 1)
+		{
+			next_line = save_next_line(fd, lst_ptr->line, next_line);
+			ft_putendl("NEXT LINE SAVED");
+		}
+		free(lst_ptr->line);
+		free(lst_ptr);
+		ft_putendl("OLD NODE FREED");
+	}
+	return (check);
 }
 
 int				get_next_line(int const fd, char **line)
 {
 	char			buff[BUFF_SIZE];
-	size_t			i;
 	int				check;
-	static t_list	**next_line = NULL;
+	int				i;
+	static t_line	**next_line = NULL;
 
-	if (start_check(fd, line, next_line))
+	if (fd < 0 || fd == 1 || fd == 2 || !line)
 		return (-1);
-	if (next_line)
-	{
-		if (check_next_line(fd, line, next_line))
+	ft_putendl("FILE DESCRIPTOR CHECKED");
+	if (!(*line = ft_strnew(0)))
+		return (-1);
+	ft_putendl("VARIABLE \"line\" CLEARED");
+	if (!next_line)
+		if (!(next_line = (t_line**)ft_memalloc(sizeof(t_line*))))
 			return (-1);
-	}
-	while (check = read(fd, buff, BUFF_SIZE) && check != -1)
+	ft_putendl("CHAINED LIST IS SET");
+	if (*next_line)
+		if ((check = check_next_line(fd, line, next_line)))
+			return (check);
+	ft_putendl("SAVED NEXT LINES CHECKED");
+	while ((check = read(fd, buff, BUFF_SIZE)) && check != -1)
 	{
 		if (check == -1)
 			return (-1);
+		ft_putendl("BUFF CONTAINS: ");
+		i = 0;
+		while (i < BUFF_SIZE)
+		{
+			ft_putchar(buff[i]);
+			i++;
+		}
+		ft_putchar('\n');
+		check = copy_buff(buff, line);
+		ft_putendl("LINE CONTAINS: ");
+		ft_putendl(*line);
+		if (check)
+		{
+			if (check == 1)
+			{
+				next_line = save_next_line(fd, buff, next_line);
+				ft_putendl("NEXT LINE SAVED");
+			}
+			return (check);
+		}
+		ft_bzero(buff, BUFF_SIZE);
 	}
-	return (check);
+	return (0);
 }

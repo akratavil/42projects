@@ -1,27 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_strjoin.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akratavi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/15 11:27:49 by akratavi          #+#    #+#             */
-/*   Updated: 2017/12/06 17:39:09 by akratavi         ###   ########.fr       */
+/*   Created: 2017/11/09 13:19:33 by akratavi          #+#    #+#             */
+/*   Updated: 2017/11/09 13:55:05 by akratavi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#include "libft.h"
+#include <stdlib.h>
 
-# define BUFF_SIZE 32
-
-typedef struct			s_line
+char	*ft_strjoin(char const *s1, char const *s2)
 {
-	char				*line;
-	struct s_line		*next;
-	int					fd;
-}						t_line;
+	char	*dst;
+	size_t	size;
 
-int						get_next_line(int const fd, char **line);
-
-#endif
+	dst = NULL;
+	if (s1 && s2)
+	{
+		size = ft_strlen(s1) + ft_strlen(s2) + 1;
+		if (!(dst = ft_strnew(size)))
+			return (NULL);
+		dst = ft_strcpy(dst, s1);
+		dst = ft_strcat(dst, s2);
+	}
+	return (dst);
+}

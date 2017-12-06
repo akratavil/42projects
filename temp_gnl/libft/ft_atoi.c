@@ -1,27 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akratavi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/15 11:27:49 by akratavi          #+#    #+#             */
-/*   Updated: 2017/12/06 17:39:09 by akratavi         ###   ########.fr       */
+/*   Created: 2017/11/07 14:55:02 by akratavi          #+#    #+#             */
+/*   Updated: 2017/11/13 15:41:10 by akratavi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
-
-# define BUFF_SIZE 32
-
-typedef struct			s_line
+int		ft_atoi(char const *s)
 {
-	char				*line;
-	struct s_line		*next;
-	int					fd;
-}						t_line;
+	int		n;
+	int		neg;
 
-int						get_next_line(int const fd, char **line);
-
-#endif
+	n = 0;
+	neg = 0;
+	while ((*s >= '\t' && *s <= '\r') || *s == ' ')
+		s++;
+	if ((*s == '-') || (*s == '+'))
+	{
+		if (*s == '-')
+			neg = 1;
+		s++;
+	}
+	while ((*s >= '0') && (*s <= '9'))
+	{
+		n = n * 10;
+		if (neg == 1)
+			n = n - (*s - 48);
+		else
+			n = n + (*s - 48);
+		s++;
+	}
+	return (n);
+}
